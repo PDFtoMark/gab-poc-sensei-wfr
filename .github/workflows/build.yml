@@ -1,0 +1,22 @@
+name: Plugin Build
+
+on:
+  - pull_request
+
+jobs:
+  build:
+    name: Plugin Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Plugin
+        run: |
+          mkdir -p out
+          echo "legit build output of PR code" > out/plugin.txt
+          zip -q -r out/sensei-lms.zip out/plugin.txt
+      - name: Store Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sensei-lms-${{ github.event.pull_request.head.sha }}
+          path: out/
+          retention-days: 1
