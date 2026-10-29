@@ -1,0 +1,34 @@
+name: Report Plugin Build
+
+on:
+  workflow_run:
+    workflows: ['Plugin Build']
+    types:
+      - completed
+
+permissions:
+  contents: read
+  actions: read
+  statuses: write
+
+jobs:
+  report-build:
+    name: Report Plugin Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PoC diagnostics
+        run: |
+          echo "WR_EVENT=${{ github.event.workflow_run.event }}"
+          echo "WR_HEAD_SHA=${{ github.event.workflow_run.head_sha }}"
+          echo "WR_HEAD_REPO=${{ github.event.workflow_run.head_repository.full_name }}"
+          echo "WR_CONCLUSION=${{ github.event.workflow_run.conclusion }}"
+      - name: Publish commit status with the link to download the plugin
+        id: plugin_artifact
+        uses: Automattic/github-action-report-artifact@v0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          artifact-name: sensei-lms-${{ github.event.workflow_run.head_sha }}
+          report-on: commit_status
+          context: Plugin Build Download
+          message: Click on "Details" to download the plugin zip file
